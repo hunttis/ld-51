@@ -1,20 +1,27 @@
 import { Player } from "../gameobjects/player";
 import { Collectible } from "../gameobjects/collectible";
-import { SwitchingLevel } from "../gameobjects/switchinglevel";
+import { SwitchingLevel } from "../gameobjects/switchinglevel";
 
 export class GameScene extends Phaser.Scene {
   TILE_SIZE = 64;
+
   player!: Player;
   collectible!: Collectible;
   cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   tenSecondTimer: number = 10;
   timerUI!: Phaser.GameObjects.Text;
-  playerPos!: Phaser.GameObjects.Text;
   dashingUI!: Phaser.GameObjects.Text;
   jumpingUI!: Phaser.GameObjects.Text;
   speedUI!: Phaser.GameObjects.Text;
+  collectablesUI!: Phaser.GameObjects.Text;
   switchingLevel!: SwitchingLevel;
   collectibleCollider!: Phaser.Physics.Arcade.Collider;
+  gameEnding!: boolean;
+  gameStartedAt!: number;
+  score!: number;
+
+  collectablesCount: number = 0;
+
 
   constructor() {
     super({ key: "GameScene" });
@@ -28,15 +35,18 @@ export class GameScene extends Phaser.Scene {
   }
 
   create() {
+    this.score = 0;
+    this.collectablesCount = 0;
+    this.gameEnding = false;
+    this.tenSecondTimer = 10;
 
     this.switchingLevel = new SwitchingLevel(this);
 
     this.cursors = this.input.keyboard.createCursorKeys();
 
-    this.physics.world.setBoundsCollision(true, true, false, false);
+    this.physics.world.setBoundsCollision(true, true, false, true);
 
     this.player = new Player(this, 100, 350)
-    //this.player.create();
     this.physics.world.enable(this.player)
     this.add.existing(this.player)
 
@@ -46,43 +56,58 @@ export class GameScene extends Phaser.Scene {
     
     this.collectibleCollider = this.physics.add.collider(this.player, this.collectible, (_player, item) => {
       item.destroy();
+
+      this.collectablesCount++
     });
 
     this.timerUI = this.add.text(1200, 25, this.tenSecondTimer.toString());
-    this.playerPos = this.add.text(600, 25, '');
+
+
     this.dashingUI = this.add.text(100, 25, '-');
     this.jumpingUI = this.add.text(100, 45, '-');
     this.speedUI = this.add.text(100, 65, '-');
+    this.collectablesUI = this.add.text(100, 85, '-');
 
     this.switchingLevel.createActiveLayerCollider();
 
     this.player.create();
 
-    this.physics.world.on('worldbounds', (obj: Phaser.Physics.Arcade.Body, _: boolean, hitGround: boolean) => {
-      console.log('Boundary collision', hitGround);
+    this.physics.world.on('worldbounds', this.worldBoundsCollisionHandler);
+
+    // TODO: this is for testing the game ending functionality - possibly remove from the final version?
+    var quitKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
+    quitKey.on("down", () => {
+      this.endGame();
     });
+
+    this.gameStartedAt = this.game.getTime();
   }
 
   update (time: number, delta: number) {
-    this.checkKeyPresses(time, delta)
+    if (!this.gameEnding) {
+      this.checkKeyPresses(time, delta)
+      this.score = time;
+    }
 
     this.player.update(time, delta)
     this.tenSecondTimer -= delta / 1000;
     if (this.tenSecondTimer < 0) {
       this.tenSecondTimer = 10;
       this.switchingLevel.changeLayer()
+
+      this.physics.add.collider(this.player, this.switchingLevel.activeLayer, () => {
+        console.log('collision')
+
+      })
     }
     this.timerUI.text = this.tenSecondTimer.toFixed(2)
 
     this.switchingLevel.update(time, delta)
-    // console.log(this.player.hasDashed)
-    this.dashingUI.text = (this.player.dashingHasCoolDowned ? 'dash ready' : '-') + '; ' + /*(this.player.canDoubleDash ? '2nd dash ready' : '-') + '; ' +*/ (this.player.hasDashed ? 'dashing' : '-') + ';'
+    this.dashingUI.text = (this.player.dashingHasCoolDowned ? 'dash ready' : '-') + '; ' + (this.player.canDoubleDash ? '2nd dash ready' : '-') + '; ' + (this.player.isDashing || this.player.isDoubleDashing ? 'dashing' : '-') + ';'
     this.jumpingUI.text = (this.player.hasJumped ? 'jumping' : '-') + '; ' + (this.player.hasDoubleJumped ? 'double jumped' : '-') + ';'
     this.speedUI.text = this.player.body.velocity.x + ';' + this.player.body.velocity.y;
-    this.playerPos.text = this.player.x.toFixed(2) + ',' + this.player.y.toFixed(2);
+    this.collectablesUI.text = `collectables: ${this.collectablesCount}`
   }
-
-
 
   checkKeyPresses(time: number, delta: number) {
     if (this.cursors.up.isDown || this.cursors.space.isDown) { // up || space
@@ -96,19 +121,38 @@ export class GameScene extends Phaser.Scene {
     }
     
     if (this.cursors.shift.isDown) { // shift
+      this.player.isMoving = true
       this.player.dash(time, delta)
     } else {
       this.player.dashButtonReleased()
     }
     
     if (this.cursors.left.isDown) { // left
+      this.player.isMoving = true
       this.player.moveLeft(time, delta)
     } else if (this.cursors.right.isDown) { // right
+      this.player.isMoving = true
       this.player.moveRight(time, delta)
     }
   }
 
   getPlayer() {
     return this.player;
+  }
+
+  worldBoundsCollisionHandler = (obj: Phaser.Physics.Arcade.Body, _: boolean, hitGround: boolean) => {
+    if (!this.gameEnding && obj.gameObject === this.player && hitGround) {
+      this.gameEnding = true;
+      // have small delay so the player character falls properly off screen
+      setTimeout(this.endGame, 500);
+      // ...and remove the boundary check from the bottom so that the player actually falls out
+      this.physics.world.setBoundsCollision(false, false, false, false);
+    }
+  }
+
+  endGame = () => {
+    console.log("End game called.");
+    // fade to black
+    this.scene.start("GameOverScene", { score: this.score - this.gameStartedAt});
   }
 }

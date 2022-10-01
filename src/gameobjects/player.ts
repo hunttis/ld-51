@@ -4,6 +4,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     
     initialVelocity: number = 200
     playerHeadingRight: boolean = true
+    isMoving: boolean = false
 
     jumpButtonHeld: boolean = false
     jumpVelocity: number = 400
@@ -17,15 +18,16 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     dashDelay: number = 400
     dashStartedAt: number = 0
     dashCoolDown: number = 1500
-    hasDashed: boolean = false
+    isDashing: boolean = false
     dashingHasCoolDowned: boolean = true
     hasTouchedGroundAfterDash: boolean = false
     dashButtonHeld: boolean = false
+    hasDashed: boolean = false
 
+    doubleDashStartedAt: number = 0
     canDoubleDash: boolean = true
-    hasDoubleDashed: boolean = false
+    isDoubleDashing: boolean = false
     doubleDashHasCoolDowned: boolean = true
-    // delayBeforeDoubleDash: number = 150
 
     constructor(scene: Phaser.Scene, startX: number, startY: number) {
         super(scene, startX, startY, "player")
@@ -33,8 +35,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     create() {
-        console.log("Creating player", this.body.collideWorldBounds);
-        (this.body as Phaser.Physics.Arcade.Body).setCollideWorldBounds(true);
+        console.log("Creating player");
+        (this.body as Phaser.Physics.Arcade.Body).setCollideWorldBounds(true, undefined, -1.5);
         (this.body as Phaser.Physics.Arcade.Body).onWorldBounds = true;
     }
 
@@ -47,32 +49,27 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             this.dashingHasCoolDowned = true
         }
 
-        // if (time - this.dashStartedAt > this.dashCoolDown * 2 && this.hasTouchedGroundAfterDash) {
-        //     this.doubleDashHasCoolDowned = true
-        //     this.canDoubleDash = true
-        // }
+        if (time - this.doubleDashStartedAt > this.dashCoolDown && this.hasTouchedGroundAfterDash) {
+            this.doubleDashHasCoolDowned = true
+            this.canDoubleDash = true
+        }
 
-        // if (time - this.dashStartedAt > this.delayBeforeDoubleDash && this.hasDashed) {
-        //     this.canDoubleDash = true;
-        // }
+        if (this.isDashing && time - this.dashStartedAt > this.dashDelay) {
+            this.isDashing = false
+            this.hasDashed = true
+        }
 
-        if (this.hasDashed && time - this.dashStartedAt > this.dashDelay) {
-            // if (this.hasDoubleDashed && (time - this.dashStartedAt + this.dashDelay) > this.dashDelay * 2) {
-            //     this.hasDoubleDashed = false
-            // } else if (!this.hasDoubleDashed) {
-            //     this.hasDashed = false
-            // }
-            this.hasDashed = false
+        if (this.isDoubleDashing && time - this.doubleDashStartedAt > this.dashDelay) {
+            this.isDoubleDashing = false
         }
 
         if (this.body.blocked.down) {
             this.hasJumped = false
             this.hasDoubleJumped = false
             this.hasTouchedGroundAfterDash = true
-            // this.canDoubleDash = false
         }
 
-        if (this.body.velocity.x != 0 && !this.hasDashed){
+        if (this.body.velocity.x != 0 && this.isMoving && !this.isDashing && !this.isDoubleDashing) {
             this.setVelocityX(this.body.velocity.x * 4 / 5)
         }
     }
@@ -80,7 +77,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     moveLeft (time: number, delta: number) {
         this.playerHeadingRight = false
 
-        if (!this.hasDashed) {
+        if (!this.isDashing && !this.isDoubleDashing) {
             this.setVelocityX(-this.initialVelocity);
         }
     }
@@ -88,7 +85,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     moveRight (time: number, delta: number) {
         this.playerHeadingRight = true
         
-        if (!this.hasDashed) {
+        if (!this.isDashing && !this.isDoubleDashing) {
             this.setVelocityX(this.initialVelocity);
         }
     }
@@ -119,29 +116,27 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
     
     dash (time: number, delta: number) {
-        if (!this.hasDashed && this.dashingHasCoolDowned) {
-            this._dash()
+        if (!this.isDashing && this.dashingHasCoolDowned) {
+            this._dash(time, delta)
 
-            this.hasDashed = true
+            this.isDashing = true
             this.dashStartedAt = time
             this.dashingHasCoolDowned = false
             this.hasTouchedGroundAfterDash = false
             this.dashButtonHeld = true
         }
-    
-        // // this.canDoubleDash
-        // console.log(this.hasDashed, !this.hasDoubleDashed, this.doubleDashHasCoolDowned && !this.dashButtonHeld)
-        // if (this.hasDashed && !this.hasDoubleDashed && this.doubleDashHasCoolDowned && !this.dashButtonHeld) {
-        //     console.log('double dashed')
-        //     this._dash()
 
-        //     this.hasDoubleDashed = true
-        //     this.canDoubleDash = false
-        //     this.doubleDashHasCoolDowned = false
-        // }
+        if ((this.isDashing || this.hasDashed) && !this.isDoubleDashing && this.doubleDashHasCoolDowned && !this.dashButtonHeld) {
+            this._dash(time, delta)
+
+            this.isDoubleDashing = true
+            this.doubleDashStartedAt = time
+            this.canDoubleDash = false
+            this.doubleDashHasCoolDowned = false
+        }
     }
 
-    _dash () {
+    _dash (time: number, delta: number) {
         if (this.playerHeadingRight) {
             this.setVelocityX(this.body.velocity.x + this.dashVelocity)
         } else {
