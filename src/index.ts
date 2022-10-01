@@ -1,7 +1,7 @@
 import { GameScene } from "./scenes/gameScene";
 import "vite/types/importMeta.d"; // Not needed when not using TypeScript
 
-const hotReload = true;
+const hotReload = false;
 
 export function startGame() {
   const config: Phaser.Types.Core.GameConfig = {
@@ -9,15 +9,17 @@ export function startGame() {
     physics: {
       default: 'arcade',
       arcade: {
-        gravity: { y: 100 }
+        gravity: { y: 500 },
+        // debug: true
       }
     },
     scale: {
       mode: Phaser.Scale.FIT,
       autoCenter: Phaser.Scale.CENTER_BOTH,
       width: 1280,
-      height: 800,
+      height: 768,
     },
+    backgroundColor: '#5588aa',
     parent: "game",
     scene: [GameScene],
   };
