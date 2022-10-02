@@ -52,9 +52,9 @@ export class GameScene extends Phaser.Scene {
     this.load.tilemapTiledJSON("level-3", `assets/maps/level-3.json`);
     
     this.load.image("level-tiles", "assets/maps/tilesheet.png");
-    this.load.spritesheet({ key: 'idle', url: "assets/images/idle.png", frameConfig: { frameWidth: 66, frameHeight: 66,} })
-    this.load.spritesheet({ key: 'jump', url: "assets/images/jump.png", frameConfig: { frameWidth: 66, frameHeight: 64,} })
-    this.load.spritesheet({ key: 'walk', url: "assets/images/walk.png", frameConfig: { frameWidth: 66, frameHeight: 66,} })
+    this.load.spritesheet({ key: 'idle', url: "assets/images/idle.png", frameConfig: { frameWidth: 64, frameHeight: 64,} })
+    this.load.spritesheet({ key: 'jump', url: "assets/images/jump.png", frameConfig: { frameWidth: 64, frameHeight: 64,} })
+    this.load.spritesheet({ key: 'walk', url: "assets/images/walk.png", frameConfig: { frameWidth: 64, frameHeight: 64,} })
     this.load.image("gem1", "assets/images/gem1.png");
     this.load.image("gem2", "assets/images/gem2.png");
     this.load.image("gem3", "assets/images/gem3.png");
