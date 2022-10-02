@@ -47,6 +47,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   preload() {
+    this.load.audio('music', 'assets/audio/pelimusa.mp3')
+
     this.load.tilemapTiledJSON("level-1", `assets/maps/level-1.json`);
     this.load.tilemapTiledJSON("level-2", `assets/maps/level-2.json`);
     this.load.tilemapTiledJSON("level-3", `assets/maps/level-3.json`);
@@ -70,6 +72,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   create() {
+    this.sound.play("music")
+    
     this.score = 0;
     this.collectiblesCount = 0;
     this.gameEnding = false;
