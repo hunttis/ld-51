@@ -61,7 +61,7 @@ export class SwitchingLevel {
             objectGroup.add(collectible)
             this.totalCollectibles++;
           })
-          const collectibleGroupCollider = this.parentScene.physics.add.overlap(this.parentScene.player, objectGroup, (player, collectible) => {
+          const collectibleGroupCollider = this.parentScene.physics.add.overlap(this.parentScene.player, objectGroup, (_, collectible) => {
             this.parentScene.player.collectibleSound.play()
             this.parentScene.particleEffects.onCollectibleCollected(collectible.body.x + collectible.body.width / 2, collectible.body.y + collectible.body.height / 2)
             collectible.destroy()
@@ -93,7 +93,7 @@ export class SwitchingLevel {
 
     }
 
-    update(time: number, delta: number) {
+    update() {
         var nextLevelLayerIndex = Phaser.Math.Wrap(this.activeLayerIndex+1, 0, this.levelLayers.length)
         var nextLevelLayer = this.levelLayers[nextLevelLayerIndex]
 

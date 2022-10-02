@@ -60,9 +60,6 @@ export class GameScene extends Phaser.Scene {
     this.load.image("gem3", "assets/images/gem3.png");
     this.load.image("background", "assets/images/bg.png")
     this.load.image("smoke", "assets/images/puff.png")
-    this.load.atlas('flares', 'assets/particles/flares.png', 'assets/particles/flares.json')
-    this.load.spritesheet({ key: 'flare', url: "assets/images/flares.png", frameConfig: { frameWidth: 128, frameHeight: 128,} })
-    // this.load.image("flare", "assets/images/flares.png");
 
     this.load.audio('jump', 'assets/audio/jump.wav')
     this.load.audio('dash', 'assets/audio/dash.wav')
@@ -97,18 +94,7 @@ export class GameScene extends Phaser.Scene {
 
     this.player.play('idle')
 
-    // this.collectible = new Collectible(this, this.TILE_SIZE * 18.5, this.TILE_SIZE * 4.5, "collectible");
-    // this.physics.world.enable(this.collectible, Phaser.Physics.Arcade.STATIC_BODY);
-    // this.add.existing(this.collectible);
-    
-    // this.collectibleCollider = this.physics.add.overlap(this.player, this.collectible, (_player, item) => {
-    //   item.destroy();
-
-    //   this.collectiblesCount++
-    // });
-
     this.timerUI = this.add.text(1200, 25, this.tenSecondTimer.toString());
-    // this.unlockablesUI = this.add.bitmapText(1200, 45, 'desyrel', 'hello', 20)
 
     this.dashingUI = this.add.text(100, 25, '-');
     this.jumpingUI = this.add.text(100, 45, '-');
@@ -156,21 +142,15 @@ export class GameScene extends Phaser.Scene {
       this.score += delta;
     }
 
-    this.player.update(time, delta)
+    this.player.update(time)
     this.tenSecondTimer -= delta / 1000;
     if (this.tenSecondTimer < 0) {
       this.tenSecondTimer = 10;
-      this.switchingLevel.changeLayer()
-
-      // this.physics.add.collider(this.player, this.switchingLevel.activeLayer, () => {
-      //   console.log('collision')
-
-      // })
-      
+      this.switchingLevel.changeLayer()      
     }
     this.timerUI.text = this.tenSecondTimer.toFixed(2)
 
-    this.switchingLevel.update(time, delta)
+    this.switchingLevel.update()
     this.dashingUI.text = 
       (this.player.dashUnlocked ? (this.player.dashingHasCoolDowned ? 'dash ready' : '-') : 'dash not unlocked') + '; ' +
       (this.player.doubleDashUnlocked ? (this.player.canDoubleDash ? 'double dash ready' : '-') : 'double dash not unlocked') + '; ' + 
@@ -192,30 +172,26 @@ export class GameScene extends Phaser.Scene {
 
   checkKeyPresses(time: number, delta: number) {
     if (this.cursors.up.isDown || this.cursors.space.isDown) { // up || space
-      this.player.jump(time, delta)
+      this.player.jump(time)
     } else {
       this.player.jumpButtonReleased()
     }
     
-    // if (this.cursors.down.isDown) { // down
-    //   this.player.tempStop(time, delta);
-    // }
-    
     if (this.cursors.shift.isDown) { // shift
       this.player.isMoving = true
-      this.player.dash(time, delta)
+      this.player.dash(time)
     } else {
       this.player.dashButtonReleased()
     }
     
     if (this.cursors.left.isDown) { // left
       this.player.isMoving = true
-      this.player.moveLeft(time, delta)
+      this.player.moveLeft()
       this.player.play('walk', true)
       this.player.setFlipX(true)
     } else if (this.cursors.right.isDown) { // right
       this.player.isMoving = true
-      this.player.moveRight(time, delta)
+      this.player.moveRight()
       this.player.play('walk', true)
       this.player.setFlipX(false)
     } else if (!this.player.hasJumped && !this.player.hasDoubleJumped) {

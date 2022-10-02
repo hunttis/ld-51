@@ -65,7 +65,7 @@ export class GameFinishedScene extends Phaser.Scene {
 
     createGemEmitter(texture: string) {
         const gemParticles = this.add.particles(texture)
-        const gemParticleEmitter = gemParticles.createEmitter({
+        gemParticles.createEmitter({
             emitZone: {
                 source: new Phaser.Geom.Rectangle(0, -50, 1280, 1),
                 type: 'random',

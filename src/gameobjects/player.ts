@@ -71,7 +71,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.body.setSize(50, 62)
     }
 
-    update(time: number, delta: number) {
+    update(time: number) {
         if (time - this.doubleJumpStartedAt > this.delayBeforeDoubleJump) {
             this.canDoubleJump = true;
         }
@@ -127,7 +127,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.hasBlockedDown = this.body.blocked.down
     }
 
-    moveLeft (time: number, delta: number) {
+    moveLeft () {
         this.playerHeadingRight = false
 
         if (!this.isDashing && !this.isDoubleDashing) {
@@ -135,7 +135,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    moveRight (time: number, delta: number) {
+    moveRight () {
         this.playerHeadingRight = true
         
         if (!this.isDashing && !this.isDoubleDashing) {
@@ -143,12 +143,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
     
-    tempStop(time: number, delta: number) {
+    tempStop() {
         this.setVelocityX(0);
         this.setVelocityY(0);
     }
 
-    jump (time: number, delta: number) {
+    jump (time: number) {
         if (!this.hasJumped) {
             this._jump()
             this.hasJumped = true
@@ -164,15 +164,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    _jump (time?: number, delta?: number) {
+    _jump () {
         this.jumpSound.play()
         this.parentScene.particleEffects.onJump()
         this.setVelocityY(-this.jumpVelocity);
     }
     
-    dash (time: number, delta: number) {
+    dash (time: number) {
         if (this.dashUnlocked && !this.isDashing && this.dashingHasCoolDowned) {
-            this._dash(time, delta)
+            this._dash()
 
             this.isDashing = true
             this.dashStartedAt = time
@@ -182,7 +182,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         }
 
         if (this.doubleDashUnlocked && (this.isDashing || this.hasDashed) && !this.isDoubleDashing && this.doubleDashHasCoolDowned && !this.dashButtonHeld) {
-            this._dash(time, delta)
+            this._dash()
 
             this.isDoubleDashing = true
             this.doubleDashStartedAt = time
@@ -191,7 +191,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    _dash (time: number, delta: number) {
+    _dash () {
         this.dashSound.play()
         if (this.playerHeadingRight) {
             this.setVelocityX(this.body.velocity.x + this.dashVelocity)

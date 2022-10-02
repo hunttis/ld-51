@@ -8,6 +8,6 @@ export class Collectible extends Phaser.Physics.Arcade.Sprite {
     create() {
     }
 
-    update(time: number, delta: number) {
+    update() {
     }
 }

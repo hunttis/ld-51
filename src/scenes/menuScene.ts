@@ -70,10 +70,6 @@ export class MenuScene extends Phaser.Scene {
                
     }
 
-    update(time: number, delta: number) {
-        
-    }
-
     selectUp() {
         this.currentSelection--
         this.currentSelection = Phaser.Math.Clamp(this.currentSelection, 1, 3)
