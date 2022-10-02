@@ -28,6 +28,7 @@ export class GameScene extends Phaser.Scene {
   gameEnding!: boolean;
   score!: number;
   background!: Phaser.GameObjects.Image;
+  music!: Phaser.Sound.BaseSound;
 
   collectiblesCount: number = 0;
 
@@ -72,8 +73,11 @@ export class GameScene extends Phaser.Scene {
   }
 
   create() {
-    this.sound.play("music")
+    if (!this.music)
+      this.music = this.sound.add("music", {volume: 0.3, loop: true})
     
+    this.music.play()
+
     this.score = 0;
     this.collectiblesCount = 0;
     this.gameEnding = false;
@@ -123,6 +127,7 @@ export class GameScene extends Phaser.Scene {
     });
 
     escKey.on('down', () => {
+      this.music.pause()
       this.scene.start("MenuScene")
     })
 
@@ -227,6 +232,7 @@ export class GameScene extends Phaser.Scene {
     // fade to white
     this.cameras.main.fadeOut(1000, 255, 255, 255, (_: unknown, progress: number) => {
       if (progress == 1) {
+        this.music.pause()
         setTimeout(() => this.scene.start("GameFinishedScene", { score: this.score }), 500);
       }
     });
@@ -238,6 +244,7 @@ export class GameScene extends Phaser.Scene {
     // fade to black
     this.cameras.main.fadeOut(1000, 0, 0, 0, (_: unknown, progress: number) => {
       if (progress == 1) {
+        this.music.pause()
         setTimeout(() => this.scene.start("GameOverScene", { score: this.score }), 500);
       }
     });
