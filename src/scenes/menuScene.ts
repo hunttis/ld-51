@@ -31,7 +31,7 @@ export class MenuScene extends Phaser.Scene {
         
         const instructions = this.createTextItem(cameraCenterX, cameraCenterY - 140,
             "Collect the gems from the appearing layers of level!\n\n" +
-            "Cursor keys to move (and select level with ENTER)\n" +
+            "Cursor keys to move (and select level with ENTER). Press down to speed up time.\n" +
             "LEVEL 1: Jump ->SPACE or UP ARROW\n" +
             "LEVEL 2: Double Jump -> Press SPACE/UP again\n" +
             "LEVEL 3: Dash -> Press SHIFT KEY", "25px")
