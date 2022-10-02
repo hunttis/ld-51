@@ -164,13 +164,13 @@ export class SwitchingLevel {
         nextLevelLayer.setDepth(5)
         
         // Detect if the player is in a square that's coming in
-        if (this.parentScene.player.y < activeLayer.height) {
-          const collidingTile = activeLayer.getTileAtWorldXY(this.parentScene.player.x, this.parentScene.player.y, true, this.parentScene.cameras.main)
+        // if (this.parentScene.player.y < activeLayer.height) {
+        //   const collidingTile = activeLayer.getTileAtWorldXY(this.parentScene.player.x, this.parentScene.player.y, true, this.parentScene.cameras.main)
   
-          if (collidingTile.index !== -1) {
-            // player death?
-            // console.log("ARGGHHHH?")
-          }        
-        }
+        //   if (collidingTile.index !== -1) {
+        //     // player death?
+        //     // console.log("ARGGHHHH?")
+        //   }        
+        // }
       }
 }
