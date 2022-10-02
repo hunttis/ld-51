@@ -5,7 +5,7 @@ import { GameOverScene } from "./scenes/gameOverScene";
 
 import "vite/types/importMeta.d"; // Not needed when not using TypeScript
 
-const hotReload = false;
+const hotReload = true;
 
 export function startGame() {
   console.log('MENU DEV!')
@@ -26,7 +26,7 @@ export function startGame() {
     },
     backgroundColor: '#5588aa',
     parent: "game",
-    scene: [MenuScene, GameScene, GameFinishedScene, GameOverScene],
+    scene: [GameOverScene, GameFinishedScene, MenuScene, GameScene],
   };
 
   return new Phaser.Game(config);

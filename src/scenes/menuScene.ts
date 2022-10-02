@@ -6,7 +6,6 @@ export class MenuScene extends Phaser.Scene {
     level3Text!: Phaser.GameObjects.Text;
     currentSelection: number = 1;
 
-
     constructor() {
         super({ key: "MenuScene", active: false, visible: false });
     }
@@ -26,12 +25,20 @@ export class MenuScene extends Phaser.Scene {
             "Oracle of Colliding Realms", "80px")
         this.gameNameText.setFontFamily("Tahoma")
         this.gameNameText.setColor('0x000000')
-
-        const instructions = this.createTextItem(cameraCenterX, cameraCenterY - 200,
-            "Cursor keys to move, up/space to jump, shift to dash", "25px")
+        this.gameNameText.setTintFill(0xff0000, 0xff00ff, 0xff00ff, 0xff00ff);
+        // this.gameNameText.setShadow(0, 3, "#000000", 5, true, true);
+        // this.gameNameText.padding = {bottom: 100}
+        
+        const instructions = this.createTextItem(cameraCenterX, cameraCenterY - 140,
+            "Collect the gems from the appearing layers of level!\n\n" +
+            "Cursor keys to move (and select level with ENTER)\n" +
+            "LEVEL 1: Jump ->SPACE or UP ARROW\n" +
+            "LEVEL 2: Double Jump -> Press SPACE/UP again\n" +
+            "LEVEL 3: Dash -> Press SHIFT KEY", "25px")
         instructions.setFontFamily("Tahoma")
         instructions.setColor('0x000000')
-        
+        // instructions.setAlign('center')
+
         this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER).on('down',() => {
             this.scene.start("GameScene", {level: this.currentSelection})
         });
@@ -48,11 +55,11 @@ export class MenuScene extends Phaser.Scene {
         });
 
 
-        this.level1Text = this.createTextItem(cameraCenterX, cameraCenterY + 50, "Level 1", "50px")
+        this.level1Text = this.createTextItem(cameraCenterX, cameraCenterY + 30, "Level 1", "50px")
         this.level1Text.setColor('0x000000')
         this.level1Text.setFontFamily("Tahoma")
         
-        this.level2Text = this.createTextItem(cameraCenterX, cameraCenterY + 170, "Level 2", "50px")
+        this.level2Text = this.createTextItem(cameraCenterX, cameraCenterY + 160, "Level 2", "50px")
         this.level2Text.setColor('0x000000')
         this.level2Text.setFontFamily("Tahoma")
         

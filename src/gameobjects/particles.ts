@@ -2,6 +2,8 @@ import { GameScene } from "../scenes/gameScene"
 
 export class ParticleEffects {
     parentScene!: GameScene
+
+
     particles!: Phaser.GameObjects.Particles.ParticleEmitterManager
     particlesEmitter!: Phaser.GameObjects.Particles.ParticleEmitter
 
@@ -14,6 +16,7 @@ export class ParticleEffects {
     }
 
     create () {
+
         this.particles = this.parentScene.add.particles('smoke')
         this.particles.setDepth(6)
 
@@ -84,5 +87,11 @@ export class ParticleEffects {
     toggleRollingGroundEffect() {
         this.groundParticleEmitter.on = false;
         this.skyParticleEmitter.on = false;
+    }
+
+    onCollectibleCollected(xLoc: number, yLoc: number) {
+        this.particlesEmitter.emitParticle(
+            10, xLoc, yLoc
+        )
     }
 }

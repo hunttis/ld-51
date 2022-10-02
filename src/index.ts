@@ -4,7 +4,7 @@ import { GameFinishedScene } from "./scenes/gameFinishedScene";
 import { GameOverScene } from "./scenes/gameOverScene";
 import { MenuScene } from "./scenes/menuScene";
 
-const hotReload = false;
+const hotReload = true;
 
 export function startGame() {
   const config: Phaser.Types.Core.GameConfig = {
@@ -26,7 +26,7 @@ export function startGame() {
     },
     backgroundColor: '#5588aa',
     parent: "game",
-    scene: [GameScene, GameFinishedScene, MenuScene, GameOverScene],
+    scene: [MenuScene, GameFinishedScene, GameScene, GameOverScene],
   };
 
   return new Phaser.Game(config);

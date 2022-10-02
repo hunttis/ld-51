@@ -197,9 +197,9 @@ export class GameScene extends Phaser.Scene {
       this.player.jumpButtonReleased()
     }
     
-    if (this.cursors.down.isDown) { // down
-      this.player.tempStop(time, delta);
-    }
+    // if (this.cursors.down.isDown) { // down
+    //   this.player.tempStop(time, delta);
+    // }
     
     if (this.cursors.shift.isDown) { // shift
       this.player.isMoving = true
@@ -220,6 +220,10 @@ export class GameScene extends Phaser.Scene {
       this.player.setFlipX(false)
     } else if (!this.player.hasJumped && !this.player.hasDoubleJumped) {
       this.player.play('idle', true)
+    }
+
+    if (this.cursors.down.isDown) {
+      this.tenSecondTimer -= (delta * 2) / 1000;
     }
   }
 

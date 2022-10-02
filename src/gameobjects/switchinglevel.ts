@@ -63,6 +63,7 @@ export class SwitchingLevel {
           })
           const collectibleGroupCollider = this.parentScene.physics.add.overlap(this.parentScene.player, objectGroup, (player, collectible) => {
             this.parentScene.player.collectibleSound.play()
+            this.parentScene.particleEffects.onCollectibleCollected(collectible.body.x + collectible.body.width / 2, collectible.body.y + collectible.body.height / 2)
             collectible.destroy()
             this.parentScene.collectiblesCount++
 
@@ -108,16 +109,12 @@ export class SwitchingLevel {
             + yOffset
         )
 
-        // this.setLayerColor(nextLevelLayer, new Phaser.Display.Color(255 * timerState, 255 * timerState, 255 * timerState))
-
         const currentLayer = this.levelLayers[Phaser.Math.Wrap(this.activeLayerIndex, 0, this.levelLayers.length)]
         if (this.parentScene.tenSecondTimer < 1) {
           // play transition sound
           if (!this.parentScene.player.layerTransitionSound.isPlaying) {
             this.parentScene.player.layerTransitionSound.play()
           }
-          // console.log("Almost swapped!", this.parentScene.tenSecondTimer)
-          // this.setLayerColor(currentLayer, new Phaser.Display.Color(255, 255 * this.parentScene.tenSecondTimer, 255 * this.parentScene.tenSecondTimer))
           currentLayer.alpha = this.parentScene.tenSecondTimer
         } else {
           currentLayer.alpha = 1
@@ -171,8 +168,8 @@ export class SwitchingLevel {
           const collidingTile = activeLayer.getTileAtWorldXY(this.parentScene.player.x, this.parentScene.player.y, true, this.parentScene.cameras.main)
   
           if (collidingTile.index !== -1) {
-            console.log("ARGGHHHH?")
-            // player death
+            // player death?
+            // console.log("ARGGHHHH?")
           }        
         }
       }

@@ -27,8 +27,8 @@ export class GameOverScene extends Phaser.Scene {
         const cameraCenterX = this.cameras.main.width / 2
         const cameraCenterY = this.cameras.main.height / 2
         this.gameNameText = this.createTextItem(cameraCenterX, cameraCenterY - 200, "All is lost", "100px")
-        this.createTextItem(cameraCenterX, cameraCenterY + 100, `You stayed alive for impressive ${this.score.toFixed(3)} s.`, "25px")
-        this.createTextItem(cameraCenterX, cameraCenterY + 200, "Press space key to play again", "25px")
+        // this.createTextItem(cameraCenterX, cameraCenterY + 100, `You stayed alive for impressive ${this.score.toFixed(3)} s.`, "25px")
+        this.createTextItem(cameraCenterX, cameraCenterY + 200, "Press space key to return to the menu", "25px")
         this.input.keyboard.on('keydown-SPACE', () => {
             this.scene.start("MenuScene")
         });
