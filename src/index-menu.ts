@@ -1,5 +1,6 @@
 import { MenuScene } from "./scenes/menuScene";
 import { GameScene } from "./scenes/gameScene";
+import { GameFinishedScene } from "./scenes/gameFinishedScene";
 import { GameOverScene } from "./scenes/gameOverScene";
 
 import "vite/types/importMeta.d"; // Not needed when not using TypeScript
@@ -14,7 +15,7 @@ export function startGame() {
       default: 'arcade',
       arcade: {
         gravity: { y: 500 },
-        debug: true
+        // debug: true
       }
     },
     scale: {
@@ -25,7 +26,7 @@ export function startGame() {
     },
     backgroundColor: '#5588aa',
     parent: "game",
-    scene: [MenuScene, GameOverScene, GameScene],
+    scene: [MenuScene, GameScene, GameFinishedScene, GameOverScene],
   };
 
   return new Phaser.Game(config);

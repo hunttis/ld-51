@@ -1,17 +1,17 @@
 {
-  "name": "phaser-template",
+  "name": "ld-51",
   "version": "1.0.0",
-  "description": "A Phaser template project to use as a base for new Phaser projects.",
+  "description": "An entry to the Ludum Dare game jam nr. 51",
   "main": "src/index.ts",
   "repository": {
-    "url": "https://github.com/mjviljan/phaser-template.git"
+    "url": "https://github.com/hunttis/ld-51.git"
   },
   "scripts": {
     "dev": "vite --host",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
-  "author": "Mika Viljanen",
+  "author": "",
   "license": "MIT",
   "devDependencies": {
     "phaser": "^3.55.2",

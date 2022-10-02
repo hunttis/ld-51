@@ -1,6 +1,14 @@
+import { GameScene } from "src/scenes/gameScene"
+
+export const enum PLAYER_SKILLS {
+    DOUBLE_JUMP = 'double-jump',
+    DASH = 'dash',
+    DOUBLE_DASH = 'double-dash'
+}
+
 export class Player extends Phaser.Physics.Arcade.Sprite {
     cursors!: Phaser.Types.Input.Keyboard.CursorKeys
-    parentScene!: Phaser.Scene
+    parentScene!: GameScene
     
     initialVelocity: number = 200
     playerHeadingRight: boolean = true
@@ -15,7 +23,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     delayBeforeDoubleJump: number = 250
 
     dashVelocity: number = 500
-    dashDelay: number = 400
+    dashDelay: number = 300
     dashStartedAt: number = 0
     dashCoolDown: number = 1500
     isDashing: boolean = false
@@ -29,15 +37,38 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     isDoubleDashing: boolean = false
     doubleDashHasCoolDowned: boolean = true
 
-    constructor(scene: Phaser.Scene, startX: number, startY: number) {
-        super(scene, startX, startY, "player")
+    hasBlockedDown: boolean = false
+
+    jumpSound!: Phaser.Sound.BaseSound
+    dashSound!: Phaser.Sound.BaseSound
+    hitTheGroundSound!: Phaser.Sound.BaseSound
+    collectibleSound!: Phaser.Sound.BaseSound
+    gameOverSound!: Phaser.Sound.BaseSound
+    layerTransitionSound!: Phaser.Sound.BaseSound
+
+    doubleJumpUnlocked: boolean = false
+    dashUnlocked: boolean = false
+    doubleDashUnlocked: boolean = false
+
+    constructor(scene: GameScene, startX: number, startY: number) {
+        super(scene, startX, startY, "idle")
         this.parentScene = scene
+        this.name = "player"
     }
 
     create() {
         console.log("Creating player");
         (this.body as Phaser.Physics.Arcade.Body).setCollideWorldBounds(true, undefined, -1.5);
         (this.body as Phaser.Physics.Arcade.Body).onWorldBounds = true;
+
+        this.jumpSound = this.parentScene.game.sound.add('jump', { volume: 0.5 })
+        this.dashSound = this.parentScene.game.sound.add('dash', { volume: 0.5 })
+        this.gameOverSound = this.parentScene.game.sound.add('gameover', { volume: 0.5 })
+        this.hitTheGroundSound = this.parentScene.game.sound.add('hit-the-ground', { volume: 0.5 })
+        this.collectibleSound = this.parentScene.game.sound.add('collectible', { volume: 0.5 })
+        this.layerTransitionSound = this.parentScene.game.sound.add('layer-transition', { volume: 0.5 })
+        this.setDepth(100)
+        this.body.setSize(50, 62)
     }
 
     update(time: number, delta: number) {
@@ -63,15 +94,37 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             this.isDoubleDashing = false
         }
 
+        if (this.body.blocked.down && !this.hasBlockedDown) {
+            this.hitTheGroundSound.play()
+            this.parentScene.particleEffects.onHitTheGround()
+        }
+
         if (this.body.blocked.down) {
             this.hasJumped = false
             this.hasDoubleJumped = false
-            this.hasTouchedGroundAfterDash = true
+            
+            if (!this.isDashing) {
+                this.hasTouchedGroundAfterDash = true
+            }
+        }
+
+        if (this.isDashing) {
+            this.parentScene.particleEffects.onDash()
+        }
+
+        if (this.isDoubleDashing) {
+            this.parentScene.particleEffects.onDash()
         }
 
         if (this.body.velocity.x != 0 && this.isMoving && !this.isDashing && !this.isDoubleDashing) {
             this.setVelocityX(this.body.velocity.x * 4 / 5)
         }
+        
+        if (this.hasJumped || this.hasDoubleJumped) {
+            this.play("jump")
+        }
+
+        this.hasBlockedDown = this.body.blocked.down
     }
 
     moveLeft (time: number, delta: number) {
@@ -103,7 +156,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             this.jumpButtonHeld = true
         }
 
-        if (this.hasJumped && !this.hasDoubleJumped && this.canDoubleJump && !this.jumpButtonHeld) {
+        if (this.doubleJumpUnlocked && this.hasJumped && !this.hasDoubleJumped && this.canDoubleJump && !this.jumpButtonHeld) {
             this._jump()
 
             this.hasDoubleJumped = true
@@ -112,11 +165,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     _jump (time?: number, delta?: number) {
+        this.jumpSound.play()
+        this.parentScene.particleEffects.onJump()
         this.setVelocityY(-this.jumpVelocity);
     }
     
     dash (time: number, delta: number) {
-        if (!this.isDashing && this.dashingHasCoolDowned) {
+        if (this.dashUnlocked && !this.isDashing && this.dashingHasCoolDowned) {
             this._dash(time, delta)
 
             this.isDashing = true
@@ -126,7 +181,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             this.dashButtonHeld = true
         }
 
-        if ((this.isDashing || this.hasDashed) && !this.isDoubleDashing && this.doubleDashHasCoolDowned && !this.dashButtonHeld) {
+        if (this.doubleDashUnlocked && (this.isDashing || this.hasDashed) && !this.isDoubleDashing && this.doubleDashHasCoolDowned && !this.dashButtonHeld) {
             this._dash(time, delta)
 
             this.isDoubleDashing = true
@@ -137,6 +192,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     _dash (time: number, delta: number) {
+        this.dashSound.play()
         if (this.playerHeadingRight) {
             this.setVelocityX(this.body.velocity.x + this.dashVelocity)
         } else {
@@ -150,6 +206,16 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     dashButtonReleased () {
         this.dashButtonHeld = false
+    }
+
+    unlockSkill (skillName: string = '') {
+        if (skillName === PLAYER_SKILLS.DOUBLE_JUMP) {
+            this.doubleJumpUnlocked = true
+        } else if (skillName === PLAYER_SKILLS.DASH) {
+            this.dashUnlocked = true
+        } else if (skillName === PLAYER_SKILLS.DOUBLE_DASH) {
+            this.doubleDashUnlocked = true
+        }
     }
 
 }
